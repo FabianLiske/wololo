@@ -31,4 +31,6 @@ pip install --upgrade pip setuptools wheel
 echo "Installing Python packages ..."
 pip install -r python-packages.txt
 
-echo "Done. Python 3.13 venv set up."
+# 7. Add user to GPIO-group
+#sudo usermod -aG gpio $USER
+echo "Done. Python 3.13 venv set up. Reboot RaspberryPi now."
