@@ -1,0 +1,29 @@
+{
+    "hosts": {
+        "nas": {
+            "host": "NAS",
+            "mac": "AA:BB:CC:DD:EE:FF",
+            "ip": "192.168.1.10"
+        },
+        "pve": {
+            "host": "Proxmox",
+            "mac": "11:22:33:44:55:66",
+            "ip": "192.168.1.20"
+        },
+        "win": {
+            "host": "Windows-PC",
+            "mac": "77:88:99:AA:BB:CC",
+            "ip": "192.168.1.30"
+        }
+    },
+    "sequences": [
+        {
+            "title": "sequence1",
+            "targets": ["nas", "pve"]
+        },
+        {
+            "title": "sequence2",
+            "targets": ["win"]
+        }
+    ]
+}
