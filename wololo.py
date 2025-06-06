@@ -14,8 +14,8 @@ fontBig = ImageFont.truetype("fonts/DejaVuSansMono.ttf", 20)
 fontSmall = ImageFont.truetype("fonts/DejaVuSansMono.ttf", 14)
 
 # Rotary Encoder
-ENCODER_PIN_A = 27     # GPIO27 (Pin 13)
-ENCODER_PIN_B = 17     # GPIO17 (Pin 11)
+ENCODER_PIN_A = 17     # GPIO17 (Pin 11)
+ENCODER_PIN_B = 27     # GPIO27 (Pin 13)
 ENCODER_BTN   = 22     # GPIO22 (Pin 15)
 
 encoder = RotaryEncoder(ENCODER_PIN_A, ENCODER_PIN_B, max_steps=0)
