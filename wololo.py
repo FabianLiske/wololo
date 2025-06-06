@@ -3,6 +3,7 @@ import json
 import sys
 import re
 import ipaddress
+import argparse
 
 from luma.core.interface.serial import i2c
 from luma.core.render import canvas
@@ -10,6 +11,17 @@ from luma.oled.device import sh1106
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 from gpiozero import RotaryEncoder, Button
+
+#################
+### ARGUMENTS ###
+#################
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str, help="Config file to use", default="config.json")
+    parser.add_argument("--timeout", type=int, help="Time to wait for response from host", default=180)
+
+    return parser.parse_args()
 
 ###############
 ### DISPLAY ###
@@ -166,7 +178,7 @@ def load_config(filepath):
 
     return cfg, ""
 
-config, error = load_config("config.json")
+config, error = load_config(args.config)
 if error:
     show_message("ERROR!", "Check terminal")
     print(error)
@@ -190,4 +202,5 @@ def main():
         device.clear()
 
 if __name__ == "__main__":
+    args = get_args()
     main()
