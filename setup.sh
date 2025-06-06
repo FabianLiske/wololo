@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # 1. Check for Python 3.11
-if ! command -v python3.11 > /dev/null 2>&1: then
+if ! command -v python3.11 > /dev/null 2>&1; then
     echo "Error: Python 3.11 is not installed or not in PATH!"
     echo "Please install Python 3.11, for example via 'sudo apt install python3.11 python3.11-venv') and try again."
     exit 1
