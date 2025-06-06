@@ -25,7 +25,7 @@ python3.11 -m venv --system-site-packages venv
 # 5. Activate and upgrade pip
 echo "Activate venv and upgrade pip ..."
 source venv/bin/activate
-pip install --upgrade pip
+pip install --upgrade pip setuptools wheel
 
 # 6. Install Python packages
 echo "Installing Python packages ..."
