@@ -119,6 +119,7 @@ def on_rotate():
     display.show_menu(menu_items, current_menu_idx)
 
 def on_button():
+    global current_menu_idx, menu_items, hosts, sequences
     choice = menu_items[current_menu_idx]
     if choice == "reload config":
         hosts, sequences = read_config(args.config)
