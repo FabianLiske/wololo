@@ -69,14 +69,10 @@ class DisplayManager:
         title_font = ImageFont.truetype(FONT_PATH, title_size)
         host_font = ImageFont.truetype(FONT_PATH, host_size)
 
-        title_w, title_h = self.draw.textsize(title, font=title_font)
-        title_x = (self.width - title_w) // 2
-        self.draw.text((title_x, 2), title, font=title_font, fill=255)
+        self.draw.text((2, 2), title, font=title_font, fill=255)
 
-        host_w, host_h = self.draw.textsize(host, font=host_font)
-        host_x = (self.width - host_w) // 2
-        host_y = (self.height - host_h) // 2
-        self.draw.text((host_x, host_y), host, font=host_font, fill=255)
+        host_y = (self.height - host_size) // 2
+        self.draw.text((2, host_y), host, font=host_font, fill=255)
 
         bar_h = 8
         x0, y0 = 2, self.height - bar_h - 2
