@@ -22,7 +22,6 @@ def get_args():
     parser.add_argument("--timeout", type=int, help="Time to wait for response from host", default=20)
 
     return parser.parse_args()
-args = get_args()
 
 ###############
 ### DISPLAY ###
@@ -44,7 +43,7 @@ encoder = RotaryEncoder(ENCODER_PIN_A, ENCODER_PIN_B, max_steps=0)
 button = Button(ENCODER_BTN, pull_up=True)
 
 def on_rotate():
-    return
+    print(encoder.steps)
 
 def on_button():
     return
@@ -178,10 +177,15 @@ def read_config(configfile):
         time.sleep(2)
         return hosts, sequences
 
+
+
+
+
+
+
+
+
+
+
+args = get_args()
 hosts, sequences = read_config(args.config)
-
-def main():
-    pass
-
-if __name__ == "__main__":
-    main()
