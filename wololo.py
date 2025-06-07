@@ -132,7 +132,7 @@ def on_button():
             info = hosts[key]
             # while booting, show combined layout
             for elapsed in range(args.timeout+1):
-                display.show_sequence_progress(sequences[idx]["title"], info["host"], elapsed, args.timeout)
+                display.show_sequence(sequences[idx]["title"], info["host"], elapsed, args.timeout)
                 time.sleep(1)
         # after sequence, back to menu
         display.show_menu(menu_items, current_menu_idx)
