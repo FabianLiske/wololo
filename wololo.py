@@ -47,7 +47,7 @@ class DisplayManager:
 
     def show_menu(self, items, index):
         self.clear_buffer()
-        font_size = 16
+        font_size = 12
         font = ImageFont.truetype(FONT_PATH, font_size)
         line_h = font_size + 4
         
@@ -74,16 +74,16 @@ encoder = RotaryEncoder(ENCODER_PIN_A, ENCODER_PIN_B, max_steps=0)
 button = Button(ENCODER_BTN, pull_up=True)
 
 def on_rotate():
-    global last_step
+    global last_step, current_menu_idx
     current = encoder.steps
     if current > last_step:
-        direction = "Dreh: CW"
+        current_menu_idx = (current_menu_idx + 1) % len(menu_items)
     elif current < last_step:
-        direction = "Dreh: CCW"
+        current_menu_idx = (current_menu_idx - 1) % len(menu_items)
     else:
         return
     last_step = current
-    show_message(direction)
+    display.show_menu(menu_items, current_menu_idx)
 
 def on_button():
     show_message("Knopf gedrückt")
