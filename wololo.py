@@ -183,9 +183,14 @@ def read_config(configfile):
 
 
 
+while True:
+    try:
+        time.sleep(0.05)
+    except KeyboardInterrupt:
+        encoder.close()
+        button.close()
 
 
 
-
-args = get_args()
-hosts, sequences = read_config(args.config)
+#args = get_args()
+#hosts, sequences = read_config(args.config)
