@@ -230,8 +230,12 @@ last_step = 0
 
 def main():
     display.show_menu(menu_items, current_menu_idx)
-    time.sleep(2)
-    sys.exit(1)
+    try:
+        while True:
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        encoder.close()
+        button.close()
 
 if __name__ == "__main__":
     main()
