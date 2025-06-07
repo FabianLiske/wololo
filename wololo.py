@@ -32,63 +32,6 @@ serial = i2c(port=1, address=0x3C)
 device = sh1106(serial, width=128, height=64)
 FONT_PATH = "fonts/DejaVuSansMono.ttf"
 
-class DisplayManager:
-    def __init__(self, device):
-        self.device = device
-        self.width, self.height = device.width, device.height
-        self.clear_buffer()
-
-    def clear_buffer(self):
-        self.buffer = Image.new("1", (self.width, self.height))
-        self.draw = ImageDraw.Draw(self.buffer)
-
-    def render(self):
-        self.device.display(self.buffer)
-
-    def show_menu(self, items, index):
-        self.clear_buffer()
-        font_size = 12
-        font = ImageFont.truetype(FONT_PATH, font_size)
-        line_h = font_size + 4
-        
-        for offset in (-1, 0, 1):
-            idx = index + offset
-            y = (offset + 1) * line_h + 2
-            if idx < 0 or idx >= len(items):
-                continue
-            text = items[idx]
-            if offset == 0:
-                self.draw.rectangle((0, y-2, self.width-1, y+line_h), outline=255)
-            self.draw.text((4, y), text, font=font, fill=255)
-        self.render()
-
-    def show_sequence(self, title, host, elapsed, total):
-        self.clear_buffer()
-        title_size = 20
-        host_size = 16
-        title_font = ImageFont.truetype(FONT_PATH, title_size)
-        host_font = ImageFont.truetype(FONT_PATH, host_size)
-
-        self.draw.text((2, 2), title, font=title_font, fill=255)
-
-        host_y = (self.height - host_size) // 2
-        self.draw.text((2, host_y), host, font=host_font, fill=255)
-
-        bar_h = 8
-        x0, y0 = 2, self.height - bar_h - 2
-        bar_w = self.width - 4
-        self.draw.rectangle((x0, y0, x0+bar_w, y0+bar_h), outline=255)
-        if total > 0:
-            fill_w = int(bar_w * elapsed / total)
-        else:
-            fill_w = 0
-        self.draw.rectangle((x0, y0, x0+fill_w, y0+bar_h), fill=255)
-
-        self.render()
-
-
-display = DisplayManager(device)
-
 ###############
 ### ENCODER ###
 ###############
@@ -101,37 +44,10 @@ encoder = RotaryEncoder(ENCODER_PIN_A, ENCODER_PIN_B, max_steps=0)
 button = Button(ENCODER_BTN, pull_up=True)
 
 def on_rotate():
-    global last_step, current_menu_idx
-    current = encoder.steps
-    if current > last_step:
-        if current_menu_idx < len(menu_items) - 1:
-            current_menu_idx += 1
-    elif current < last_step:
-        if current_menu_idx > 0:
-            current_menu_idx -= 1
-    else:
-        return
-    last_step = current
-    display.show_menu(menu_items, current_menu_idx)
+    return
 
 def on_button():
-    global current_menu_idx, menu_items, hosts, sequences
-    choice = menu_items[current_menu_idx]
-    if choice == "reload config":
-        hosts, sequences = read_config(args.config)
-        menu_items[:] = [seq["title"] for seq in sequences] + ["reload config"]
-        current_menu_idx = 0
-        display.show_menu(menu_items, current_menu_idx)
-    else:
-        idx = menu_items.index(choice)
-        for key in sequences[idx]["targets"]:
-            info = hosts[key]
-            # while booting, show combined layout
-            for elapsed in range(args.timeout+1):
-                display.show_sequence(sequences[idx]["title"], info["host"], elapsed, args.timeout)
-                time.sleep(1)
-        # after sequence, back to menu
-        display.show_menu(menu_items, current_menu_idx)
+    return
 
 encoder.when_rotated = on_rotate
 button.when_pressed = on_button
@@ -264,23 +180,8 @@ def read_config(configfile):
 
 hosts, sequences = read_config(args.config)
 
-###############
-### MENU #####
-###############
-
-# Build menu items from sequence titles plus reload option
-menu_items = [seq["title"] for seq in sequences] + ["reload config"]
-current_menu_idx = 0
-last_step = 0
-
 def main():
-    display.show_menu(menu_items, current_menu_idx)
-    try:
-        while True:
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        encoder.close()
-        button.close()
+    pass
 
 if __name__ == "__main__":
     main()
