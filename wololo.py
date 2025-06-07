@@ -202,7 +202,7 @@ def draw_main_menu(draw):
     for offset in (-1, 0, 1):
         index = main_menu_index + offset
         y = (offset + 1) * box_height + 2
-        if index < 0 or index >= num_main_menu_items - 1:
+        if index < 0 or index > num_main_menu_items - 1:
             text = "-------------"
         else:
             text = main_menu_items[index]
