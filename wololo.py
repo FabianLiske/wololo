@@ -204,12 +204,12 @@ def load_config(filepath):
 def read_config(args.config):
     config, error = load_config(args.config)
     if error:
-        show_message("ERROR!", "Check terminal")
+        #show_message("ERROR!", "Check terminal")
         print(error)
         time.sleep(5)
         sys.exit(1)
     else:
-        show_message("Config OK")
+        #show_message("Config OK")
         print("Config OK")
         hosts = config["hosts"]
         sequences = config["sequences"]
