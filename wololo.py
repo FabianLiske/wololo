@@ -47,8 +47,9 @@ class DisplayManager:
 
     def show_menu(self, items, index):
         self.clear_buffer()
-        font = ImageFont.truetype(FONT_PATH, 16)
-        line_h = font.getsize("A")[1] + 4
+        font_size = 16
+        font = ImageFont.truetype(FONT_PATH, font_size)
+        line_h = font_sitze + 4
         
         for offset in (-1, 0, 1):
             idx = (index + offset) % len(items)
