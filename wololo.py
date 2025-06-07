@@ -52,7 +52,7 @@ class DisplayManager:
         line_h = font_size + 4
         
         for offset in (-1, 0, 1):
-            idx = index + offset)
+            idx = index + offset
             y = (offset + 1) * line_h + 2
             if idx < 0 or idx >= len(items):
                 continue
