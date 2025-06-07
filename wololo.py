@@ -45,8 +45,8 @@ def on_rotate():
     if current_screen == 0:
         if current_step > last_step:
             main_menu_index += 1
-            if main_menu_index > num_main_menu_items:
-                main_menu_index = num_main_menu_items
+            if main_menu_index > num_main_menu_items - 1:
+                main_menu_index = num_main_menu_items - 1
         elif current_step < last_step:
             main_menu_index -= 1
             if main_menu_index < 0:
