@@ -79,9 +79,11 @@ def on_rotate():
     global last_step, current_menu_idx
     current = encoder.steps
     if current > last_step:
-        current_menu_idx = (current_menu_idx + 1) % len(menu_items)
+        if current_menu_idx < len(menu_items) - 1:
+            current_menu_idx += 1
     elif current < last_step:
-        current_menu_idx = (current_menu_idx - 1) % len(menu_items)
+        if current_menu_idx > 0:
+            current_menu_idx += 1
     else:
         return
     last_step = current
