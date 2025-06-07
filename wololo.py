@@ -194,9 +194,6 @@ def read_config(configfile):
         time.sleep(2)
         return hosts, sequences
 
-def clear_buffer(draw):
-
-
 def draw_main_menu(draw):
     font_size = 14
     font = ImageFont.truetype(FONT_PATH, font_size)
