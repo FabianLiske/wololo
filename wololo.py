@@ -83,7 +83,7 @@ def on_rotate():
             current_menu_idx += 1
     elif current < last_step:
         if current_menu_idx > 0:
-            current_menu_idx += 1
+            current_menu_idx -= 1
     else:
         return
     last_step = current
