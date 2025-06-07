@@ -22,6 +22,7 @@ def get_args():
     parser.add_argument("--timeout", type=int, help="Time to wait for response from host", default=180)
 
     return parser.parse_args()
+args = get_args()
 
 ###############
 ### DISPLAY ###
@@ -29,13 +30,36 @@ def get_args():
 
 serial = i2c(port=1, address=0x3C)
 device = sh1106(serial, width=128, height=64)
-fontBig = ImageFont.truetype("fonts/DejaVuSansMono.ttf", 20)
-fontSmall = ImageFont.truetype("fonts/DejaVuSansMono.ttf", 14)
+FONT_PATH = "fonts/DejaVuSansMono.ttf"
 
-def show_message(line1, line2=""):
-    with canvas(device) as draw:
-        draw.text((0, 6), line1, font=fontBig, fill="white")
-        draw.text((0, 30), line2, font=fontSmall, fill="white")
+class DisplayManager:
+    def __init__(self, device):
+        self.device = device
+        self.width, self.height = device.width, device.height
+        self.clear_buffer()
+
+    def clear_buffer(self):
+        self.buffer = Image.new("1", (self.width, self.height))
+        self.draw = ImageDraw.Draw(self.buffer)
+
+    def render(self):
+        self.device.display(self.buffer)
+
+    def show_menu(self, items, index):
+        self.clear_buffer()
+        font = ImageFont.truetype(FONT_PATH, 16)
+        line_h = font.getsize("A")[1] + 4
+        
+        for offset in (-1, 0, 1):
+            idx = (index + offset) % len(items)
+            y = (offset + 1) * line_h + 2
+            text = items[idx]
+            if offset == 0:
+                self.draw.rectangle((0, y-2, self.width-1, y+line_h), outline=255)
+            self.draw.text((4, y), text, font=font, fill=255)
+        self.render()
+
+display = DisplayManager(device)
 
 ###############
 ### ENCODER ###
@@ -47,7 +71,6 @@ ENCODER_BTN   = 22     # GPIO22 (Pin 15)
 
 encoder = RotaryEncoder(ENCODER_PIN_A, ENCODER_PIN_B, max_steps=0)
 button = Button(ENCODER_BTN, pull_up=True)
-last_step = 0
 
 def on_rotate():
     global last_step
@@ -178,29 +201,36 @@ def load_config(filepath):
 
     return cfg, ""
 
-config, error = load_config(args.config)
-if error:
-    show_message("ERROR!", "Check terminal")
-    print(error)
-    time.sleep(5)
-    sys.exit(1)
-else:
-    show_message("Config OK")
-    print("Config OK")
-    time.sleep(2)
+def read_config(args.config):
+    config, error = load_config(args.config)
+    if error:
+        show_message("ERROR!", "Check terminal")
+        print(error)
+        time.sleep(5)
+        sys.exit(1)
+    else:
+        show_message("Config OK")
+        print("Config OK")
+        hosts = config["hosts"]
+        sequences = config["sequences"]
+        time.sleep(2)
+        return hosts, sequences
+
+hosts, sequences = read_config(args.config)
+
+###############
+### MENU #####
+###############
+
+# Build menu items from sequence titles plus reload option
+menu_items = [seq["title"] for seq in sequences] + ["reload config"]
+current_menu_idx = 0
+last_step = 0
 
 def main():
-    try:
-        show_message("Bereit...")
-        while True:
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        encoder.close()
-        button.close()
-        show_message("Beende...")
-        time.sleep(1)
-        device.clear()
+    display.show_menu(menu_items, current_menu_idx)
+    time.sleep(2)
+    sys.exit(1)
 
 if __name__ == "__main__":
-    args = get_args()
     main()
