@@ -201,8 +201,8 @@ def load_config(filepath):
 
     return cfg, ""
 
-def read_config(args.config):
-    config, error = load_config(args.config)
+def read_config(configfile):
+    config, error = load_config(configfile)
     if error:
         #show_message("ERROR!", "Check terminal")
         print(error)
