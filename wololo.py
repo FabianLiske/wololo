@@ -194,6 +194,9 @@ def read_config(configfile):
         time.sleep(2)
         return hosts, sequences
 
+def clear_buffer(draw):
+
+
 def draw_main_menu(draw):
     font_size = 14
     font = ImageFont.truetype(FONT_PATH, font_size)
@@ -224,8 +227,7 @@ num_main_menu_items = len(main_menu_items)
 
 serial = i2c(port=1, address=0x3C)
 device = sh1106(serial, width=128, height=64)
-buffer = Image.new("1", device.size)
-draw = ImageDraw.Draw(buffer)
+
 FONT_PATH = "fonts/DejaVuSansMono.ttf"
 
 ###############
@@ -244,6 +246,8 @@ button.when_pressed = on_button
 
 
 while True:
+    buffer = Image.new("1", device.size)
+    draw = ImageDraw.Draw(buffer)
     try:
         time.sleep(0.05)
     except KeyboardInterrupt:
