@@ -12,6 +12,15 @@ from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime
 from gpiozero import RotaryEncoder, Button
 
+###################
+### GLOBAL VARS ###
+###################
+
+last_step = 0
+current_screen = 0
+main_menu_index = 0
+main_menu_items = 0
+
 #################
 ### ARGUMENTS ###
 #################
@@ -23,33 +32,31 @@ def get_args():
 
     return parser.parse_args()
 
-###############
-### DISPLAY ###
-###############
-
-serial = i2c(port=1, address=0x3C)
-device = sh1106(serial, width=128, height=64)
-FONT_PATH = "fonts/DejaVuSansMono.ttf"
-
-###############
-### ENCODER ###
-###############
-
-ENCODER_PIN_A = 17     # GPIO17 (Pin 11)
-ENCODER_PIN_B = 27     # GPIO27 (Pin 13)
-ENCODER_BTN   = 22     # GPIO22 (Pin 15)
-
-encoder = RotaryEncoder(ENCODER_PIN_A, ENCODER_PIN_B, max_steps=0)
-button = Button(ENCODER_BTN, pull_up=True)
+#########################
+### ENCODER CALLBACKS ###
+#########################
 
 def on_rotate():
+    global last_step, main_menu_index
+    current_step = encoder.steps
+
+    # Main menu
+    if current_screen == 0:
+        if current_step > last_step:
+            main_menu_index += 1
+            if main_menu_index > main_menu_items:
+                main_menu_index = main_menu_items
+        elif current_step < last_step:
+            main_menu_index -= 1
+            if main_menu_index < 0:
+                main_menu_index = 0
+    
     print(encoder.steps)
+
+    last_step = current_step
 
 def on_button():
     return
-
-encoder.when_rotated = on_rotate
-button.when_pressed = on_button
 
 ##############################
 ### LOAD & VALIDATE CONFIG ###
@@ -177,10 +184,37 @@ def read_config(configfile):
         time.sleep(2)
         return hosts, sequences
 
+### MAIN EXECUTION ########################################################
 
+args = get_args()
+hosts, sequences = read_config(args.config)
 
+print(sequences)
+sys.exit(1)
 
+main_menu_items = len(sequences) + 1
 
+###############
+### DISPLAY ###
+###############
+
+serial = i2c(port=1, address=0x3C)
+device = sh1106(serial, width=128, height=64)
+FONT_PATH = "fonts/DejaVuSansMono.ttf"
+
+###############
+### ENCODER ###
+###############
+
+ENCODER_PIN_A = 17     # GPIO17 (Pin 11)
+ENCODER_PIN_B = 27     # GPIO27 (Pin 13)
+ENCODER_BTN   = 22     # GPIO22 (Pin 15)
+
+encoder = RotaryEncoder(ENCODER_PIN_A, ENCODER_PIN_B, max_steps=0)
+button = Button(ENCODER_BTN, pull_up=True)
+
+encoder.when_rotated = on_rotate
+button.when_pressed = on_button
 
 
 while True:
@@ -190,7 +224,3 @@ while True:
         encoder.close()
         button.close()
 
-
-
-#args = get_args()
-#hosts, sequences = read_config(args.config)
