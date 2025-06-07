@@ -19,7 +19,7 @@ from gpiozero import RotaryEncoder, Button
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, help="Config file to use", default="config.json")
-    parser.add_argument("--timeout", type=int, help="Time to wait for response from host", default=180)
+    parser.add_argument("--timeout", type=int, help="Time to wait for response from host", default=20)
 
     return parser.parse_args()
 args = get_args()
@@ -62,6 +62,35 @@ class DisplayManager:
             self.draw.text((4, y), text, font=font, fill=255)
         self.render()
 
+    def show_sequence(self, title, host, elapsed, total):
+        self.clear_buffer()
+        title_size = 20
+        host_size = 16
+        title_font = ImageFont.truetype(FONT_PATH, title_size)
+        host_font = ImageFont.truetype(FONT_PATH, host_size)
+
+        title_w, title_h = self.draw.textsize(title, font=title_font)
+        title_x = (self.width - title_w) // 2
+        self.draw.text((title_x, 2), title, font=title_font, fill=255)
+
+        host_w, host_h = self.draw.textsize(host, font=host_font)
+        host_x = (self.width - host_w) // 2
+        host_y = (self.height - host_h) // 2
+        self.draw.text((host_x, host_y), host, font=host_font, fill=255)
+
+        bar_h = 8
+        x0, y0 = 2, self.height - bar_h - 2
+        bar_w = self.width - 4
+        self.draw.rectangle((x0, y0, x0+bar_w, y0+bar_h), outline=255)
+        if total > 0:
+            fill_w = int(bar_w * elapsed / total)
+        else:
+            fill_w = 0
+        self.draw.rectangle((x0, y0, x0+fill_w, y0+bar_h), fill=255)
+
+        self.render()
+
+
 display = DisplayManager(device)
 
 ###############
@@ -90,7 +119,22 @@ def on_rotate():
     display.show_menu(menu_items, current_menu_idx)
 
 def on_button():
-    show_message("Knopf gedrückt")
+    choice = menu_items[current_menu_idx]
+    if choice == "reload config":
+        hosts, sequences = read_config(args.config)
+        menu_items[:] = [seq["title"] for seq in sequences] + ["reload config"]
+        current_menu_idx = 0
+        display.show_menu(menu_items, current_menu_idx)
+    else:
+        idx = menu_items.index(choice)
+        for key in sequences[idx]["targets"]:
+            info = hosts[key]
+            # while booting, show combined layout
+            for elapsed in range(args.timeout+1):
+                display.show_sequence_progress(sequences[idx]["title"], info["host"], elapsed, args.timeout)
+                time.sleep(1)
+        # after sequence, back to menu
+        display.show_menu(menu_items, current_menu_idx)
 
 encoder.when_rotated = on_rotate
 button.when_pressed = on_button
