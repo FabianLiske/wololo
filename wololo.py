@@ -19,7 +19,8 @@ from gpiozero import RotaryEncoder, Button
 last_step = 0
 current_screen = 0
 main_menu_index = 0
-main_menu_items = 0
+num_main_menu_items = 0
+main_menu_items = []
 
 #################
 ### ARGUMENTS ###
@@ -44,19 +45,26 @@ def on_rotate():
     if current_screen == 0:
         if current_step > last_step:
             main_menu_index += 1
-            if main_menu_index > main_menu_items:
-                main_menu_index = main_menu_items
+            if main_menu_index > num_main_menu_items:
+                main_menu_index = num_main_menu_items
         elif current_step < last_step:
             main_menu_index -= 1
             if main_menu_index < 0:
                 main_menu_index = 0
-    
-    print(encoder.steps)
 
     last_step = current_step
 
 def on_button():
-    return
+    global current_screen
+
+    # Main Menu
+    if current_screen == 0:
+        # Move to refresh config screen
+        if main_menu_index == num_main_menu_items:
+            current_screen = 1
+        # Move to sequence screen
+        else:
+            current_screen = 2
 
 ##############################
 ### LOAD & VALIDATE CONFIG ###
@@ -170,6 +178,7 @@ def load_config(filepath):
     return cfg, ""
 
 def read_config(configfile):
+    global num_main_menu_items
     config, error = load_config(configfile)
     if error:
         #show_message("ERROR!", "Check terminal")
@@ -181,18 +190,33 @@ def read_config(configfile):
         print("Config OK")
         hosts = config["hosts"]
         sequences = config["sequences"]
+        num_main_menu_items = len(sequences)
         time.sleep(2)
         return hosts, sequences
+
+def draw_main_menu(draw):
+    font_size = 14
+    font = ImageFont.truetype(FONT_PATH, font_size)
+    box_height = font_size + 4
+
+    for offset in (-1, 0, 1):
+        index = main_menu_index + offset
+        y = (offset + 1) * box_height + 2
+        if index < 0 or index >= num_main_menu_items:
+            text = "-------------"
+        else:
+            text = main_menu_items[index]
+        if offset == 0:
+            draw.rectangle((0, y-2, device.width-1, y+box_height), outline=255)
+        draw.text((4, y), text, font=font, fill=255)
+
 
 ### MAIN EXECUTION ########################################################
 
 args = get_args()
 hosts, sequences = read_config(args.config)
-
-print(sequences)
-sys.exit(1)
-
-main_menu_items = len(sequences) + 1
+main_menu_items = [seq["title"] for seq in sequences] + ["Reload Config"]
+num_main_menu_items = len(main_menu_items)
 
 ###############
 ### DISPLAY ###
@@ -200,6 +224,8 @@ main_menu_items = len(sequences) + 1
 
 serial = i2c(port=1, address=0x3C)
 device = sh1106(serial, width=128, height=64)
+buffer = Image.new("1", device.size)
+draw = ImageDraw.Draw(buffer)
 FONT_PATH = "fonts/DejaVuSansMono.ttf"
 
 ###############
@@ -224,3 +250,5 @@ while True:
         encoder.close()
         button.close()
 
+    draw_main_menu(draw)
+    device.display(buffer)
